@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"  xmlns:mvc="http://www.springframework.org/schema/mvc"  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd ">
+	<description>SpringMVC配置文件 </description>
+	
+	<!-- 开启srping mvc注入配置 -->
+	<mvc:annotation-driven/>
+
+	<!-- 开启aspctj aop组件，开启后，可以利用@Aspect注解对类进行面向切面的编程 -->
+	<aop:aspectj-autoproxy />
+	
+	<!-- 静态资源访问（不拦截此目录下的东西的访问） -->  
+    <mvc:resources location="res/"  mapping="/res/**" />    
+    <mvc:resources location="downloadFile/"  mapping="/downloadFile//**" />    
+    <!-- 对action层进行自动注入扫描 -->
+	<context:component-scan base-package="com.lezhi.demo.web.action" />
+	
+	<!-- 配置日志拦截切入，此组件将截获所有Action请求的方法，并对返回结果进行包装，并对日志进行记录，避免到处写日志等 -->
+    <bean class="com.lezhi.demo.web.common.LogAspect" />
+    <bean class="com.lezhi.demo.web.common.MessageModel" scope="request">
+		<!-- 如果scope采用request或session时，以下aop标记是必须的，否则会报错无法注入 -->
+		<aop:scoped-proxy/> 
+	</bean>
+	<bean class="com.fasterxml.jackson.databind.ObjectMapper" />
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/content/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+	<!-- 配置Spring MVC用于接收上传文件等数据的组件 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" p:defaultEncoding="utf-8" >
+	 <property name="maxUploadSize" value="999900000"/>
+    <property name="maxInMemorySize" value="10240" />
+    </bean>
+    
+  	<!--登录页面校验码配置  使用com.google.code.kaptcha -->
+	<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+		<property name="config">
+			<bean class="com.google.code.kaptcha.util.Config">
+				<constructor-arg>
+					<props>
+						<prop key="kaptcha.border">no</prop>
+						<prop key="kaptcha.border.color">105,179,90</prop>
+						<prop key="kaptcha.textproducer.font.color">blue</prop>
+						<prop key="kaptcha.textproducer.font.size">30</prop>
+						<prop key="kaptcha.textproducer.char.space">10</prop>
+						<prop key="kaptcha.session.key">code</prop>
+						<prop key="kaptcha.textproducer.char.length">4</prop>
+						<prop key="kaptcha.noise.impl">com.google.code.kaptcha.impl.NoNoise</prop>
+						<prop key="kaptcha.image.width">144</prop>
+						<prop key="kaptcha.image.height">38</prop>
+						<!--<prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>
+						<prop key="kaptcha.background.clear.from">light grey</prop>
+						<prop key="kaptcha.background.clear.to">white</prop>-->
+					</props>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	
+	<mvc:view-controller path="/" view-name="login"/>
+</beans>
