@@ -60,6 +60,7 @@ public class LoginAction  extends BaseAction {
 		JSONObject json = new JSONObject();
 		try {
 			  User user = new User();
+			  user.setId("1");
 			  user.setUserName(userName);
 			  user.setPassword(password);
 			  boolean result = loginService.insert(user);
